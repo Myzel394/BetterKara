@@ -5,70 +5,71 @@ This script enables you to use an easier API for the [PythonKara](https://www.sw
 Copy the code of [betterkara.py](betterkara.py) and paste it into your file. Some variables are overwritten, these provide you the better API.
 
 # Examples
-
-    # Here is the copy-pasted code...  
-      
-    # Sets leafs until Kara hits a tree  
-    while not kara.is_tree_front():  
-        kara.set_leaf()  
+```python
+# The copy-pasted code...  
+  
+# Sets leafs until Kara hits a tree  
+while not kara.is_tree_front():  
+    kara.set_leaf()  
+    kara.forward()  
+  
+  
+# If a mushroom is behind Kara, he will be moved behind it  
+if kara.is_mushroom_back():  
+    kara.left()  
+    kara.back(2)  
+    kara.right()  
+  
+  
+# Moves Kara to the next hole on the left side  
+while True:  
+    if not kara.is_empty_left():  
         kara.forward()  
-      
-      
-    # If a mushroom is behind Kara, he will be moved behind it  
-    if kara.is_mushroom_back():  
+    else:  
         kara.left()  
-        kara.back(2)  
-        kara.right()  
-      
-      
-    # Moves Kara to the next hole on the left side  
-    while True:  
-        if not kara.is_empty_left():  
+  
+  
+# Lets Kara fill out a closed figure with leafs  
+while True:  # Do-While  
+  if not kara.is_tree_front():  
+        if kara.is_tree_left():  
+            # Tree is left, fill out everything on the right  
+  kara.turn_right()  
+            move_and_set_leaves()  
+            kara.turn_left()  
+              
+            # Forward for next step  
+  kara.forward()  
+        else:  
+            # No tree in front, fill out everything in front  
+  move_and_set_leaves()  
+              
+            # To left for next step  
+  kara.turn_left()  
+            kara.forward()  
+    else:  
+        # To the left if there is no tree  
+  if not kara.is_tree_left():  
+            kara.turn_left()  
             kara.forward()  
         else:  
-            kara.left()  
+            # Turn around  
+  kara.turn_around()  
       
+    if kara.current_position() == start_position:  # Do-While  
+ # Kara is on start position  break  
+  
+  
+# Moves Kara out of a maze  
+while not kara.is_on_leaf():  
+    if kara.is_tree_left():  
+        if kara.is_tree_front():  
+            kara.turn_right()  
+    else:  
+        kara.turn_left()  
       
-    # Lets Kara fill out a closed figure with leafs  
-    while True:  # Do-While  
-      if not kara.is_tree_front():  
-            if kara.is_tree_left():  
-                # Tree is left, fill out everything on the right  
-      kara.turn_right()  
-                move_and_set_leaves()  
-                kara.turn_left()  
-                  
-                # Forward for next step  
-      kara.forward()  
-            else:  
-                # No tree in front, fill out everything in front  
-      move_and_set_leaves()  
-                  
-                # To left for next step  
-      kara.turn_left()  
-                kara.forward()  
-        else:  
-            # To the left if there is no tree  
-      if not kara.is_tree_left():  
-                kara.turn_left()  
-                kara.forward()  
-            else:  
-                # Turn around  
-      kara.turn_around()  
-          
-        if kara.current_position() == start_position:  # Do-While  
-     # Kara is on start position  break  
-      
-      
-    # Moves Kara out of a maze  
-    while not kara.is_on_leaf():  
-        if kara.is_tree_left():  
-            if kara.is_tree_front():  
-                kara.turn_right()  
-        else:  
-            kara.turn_left()  
-          
-        kara.forward()
+    kara.forward()
+```
 
 # Code
 ## Main classes
