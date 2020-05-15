@@ -30,34 +30,57 @@ while True:
   
   
 # Lets Kara fill out a closed figure with leafs  
-while True:  # Do-While  
-  if not kara.is_tree_front():  
-        if kara.is_tree_left():  
-            # Tree is left, fill out everything on the right  
-  kara.turn_right()  
-            move_and_set_leaves()  
-            kara.turn_left()  
-              
-            # Forward for next step  
-  kara.forward()  
-        else:  
-            # No tree in front, fill out everything in front  
-  move_and_set_leaves()  
-              
-            # To left for next step  
-  kara.turn_left()  
-            kara.forward()  
-    else:  
-        # To the left if there is no tree  
-  if not kara.is_tree_left():  
-            kara.turn_left()  
-            kara.forward()  
-        else:  
-            # Turn around  
-  kara.turn_around()  
-      
-    if kara.current_position() == start_position:  # Do-While  
- # Kara is on start position  break  
+def move_and_set_leaves():
+    # type: () -> int
+    # noinspection PyShadowingNames
+    counter = 0
+    
+    while True:
+        # Blatt setzen
+        kara.set_leaf()
+        
+        # Überprüfen
+        if not kara.is_tree_front():
+            kara.forward()
+            counter += 1
+        else:
+            break
+    
+    # Wieder zurückgehen
+    kara.backward(counter)
+    
+    return counter
+
+
+while True:  # Do-While
+    if not kara.is_tree_front():
+        if kara.is_tree_left():
+            # Tree is left, fill out everything on the right
+            kara.turn_right()
+            move_and_set_leaves()
+            kara.turn_left()
+            
+            # Forward for next step
+            kara.forward()
+        else:
+            # No tree front, fill out everything there
+            move_and_set_leaves()
+            
+            # To left for next step
+            kara.turn_left()
+            kara.forward()
+    else:
+        # To the left if there is not tree
+        if not kara.is_tree_left():
+            kara.turn_left()
+            kara.forward()
+        else:
+            # No way there, turn around
+            kara.turn_around()
+    
+    if kara.current_position() == start_position:  # Do-While
+        # Kara is on start position
+        break
   
   
 # Moves Kara out of a maze  
