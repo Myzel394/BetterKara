@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+try:
+    from typing import *
+except ImportError:
+    # Wow
+    pass
 
 """
 This file provides better APIs for the PythonKara project.
@@ -38,14 +43,37 @@ class DebugClass:
 Debug = DebugClass()
 
 
+class Direction:
+    FORWARD = 1
+    RIGHT = 2
+    BACKWARD = 3
+    LEFT = 4
+    
+    def direction_to_position_add(self, direction):
+        # type: (int) -> Tuple[int, int]
+        if direction == self.FORWARD:
+            return 0, 1
+        elif direction == self.RIGHT:
+            return 1, 0
+        elif direction == self.BACKWARD:
+            return 0, -1
+        elif direction == self.LEFT:
+            return -1, 0
+        
+        raise ValueError('Direction "' + str(direction) + '" is not a valid number representing a direction!')
+
+
+Direction = Direction()
+
+
 class View:
     """
     Handles view of kara.
     """
-    UP = 1
-    RIGHT = 2
-    DOWN = 3
-    LEFT = 4
+    UP = Direction.FORWARD
+    RIGHT = Direction.RIGHT
+    DOWN = Direction.BACKWARD
+    LEFT = Direction.LEFT
     
     MIN = 1
     MAX = 4
@@ -87,11 +115,11 @@ class Position:
     """
     
     def __init__(self, initial=None):
-        # type: (Optional[List[int, int]]) -> Position
+        # type: (Optional[Tuple[int, int]]) -> Position
         if initial is None:
             initial = [0, 0]
         
-        self.__pos = initial
+        self.__pos = [initial[0], initial[1]]
     
     def add(self, other):
         # type: (Tuple[int, int]) -> None
@@ -120,6 +148,11 @@ class BetterKara:
         self.instance = instance
         self.view = View(view_initial)
         self.position = Position()
+    
+    def absolute_position(self):
+        # type: () -> Tuple[int, int]
+        point = self.instance.getPosition()
+        return point.x, point.y
     
     def current_position(self):
         # type: () -> Tuple[int, int]
@@ -150,15 +183,8 @@ class BetterKara:
     
     def __update_position(self):
         view = self.view.get()
-        
-        if view == View.UP:
-            self.position.add((0, 1))
-        elif view == View.RIGHT:
-            self.position.add((1, 0))
-        elif view == View.DOWN:
-            self.position.add((0, -1))
-        elif view == View.LEFT:
-            self.position.add((-1, 0))
+        direction = Direction.direction_to_position_add(view)
+        self.position.add(direction)
     
     def move(self, check_empty=True):
         # type: (bool) -> BetterKara
@@ -599,21 +625,68 @@ class BetterKaraWorld:
         return False
     
     def replace_all_field_types(self, old, new, *args, **kwargs):
-        # type: (str, str, *args, **kwargs) -> counter
+        # type: (str, str, *args, **kwargs) -> int
         kwargs["old"] = old
         kwargs["new"] = new
         
         return self.__iterate_positions_do_func(self.replace_field_type, *args, **kwargs)
-
-
+    
+    def get_next_field_from_instance(self, instance, field_type, max_check=None, direction=Direction.FORWARD):
+        # type: (BetterKara, str, Optional[int], int) -> Optional[Tuple[int, int]]
+        """
+        Finds the next `field_type` that is in front of `kara`. Checks only up to `max_check` fields.
+        
+        :param instance: The kara instance
+        :type instance: BetterKara
+        
+        :param field_type: The field type
+        :type field_type: str
+        
+        :param max_check: The maximum amount of fields that should be checked. If None, this will be half the size of
+        the axis of the world.
+        :type max_check: Optional[int]
+        
+        :param direction: In what direction should be searched for the field
+        :type direction: str
+        
+        :return:
+            If None:
+                No field found
+            If Tuple[int, int]:
+                The field (Tuple[<x_value>, <y_value>])
+        :rtype: Optional[Tuple[int, int]]
+        """
+        # Constrain values
+        if max_check is None:
+            max_check = max(*self.get_size())
+        
+        # Get absolute view from relative instance`s view
+        relative_view = View(instance.view.get())
+        relative_view.add(direction)
+        
+        direction_add = Direction.direction_to_position_add(relative_view.get())
+        position = Position(instance.absolute_position())
+        
+        for _ in range(max_check):
+            position.add(direction_add)
+            
+            current_position = position.get()
+            current_type = self.get_field_type(*current_position)
+            
+            if current_type == field_type:
+                return current_position
+        
+        return
+        
+        
 class BetterKaraTools:
     def __init__(self, instance):
         self.instance = instance
     
     def __build_string(self, message, sep=" "):
-        # type: (str, str) -> str
+        # type: (Union[str, list], str) -> str
         if type(message) is list:
-            string = sep.join(message)
+            string = sep.join([str(x) for x in message])
         else:
             string = message
         
