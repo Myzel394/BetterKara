@@ -410,7 +410,7 @@ class BetterKara:
         # type: (int) -> BetterKara
         """Rotates to a given view"""
         for _ in range(4):
-            if self.current_view == view:
+            if self.current_view() == view:
                 break
             self.turn_right()
         
